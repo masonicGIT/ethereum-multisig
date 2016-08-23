@@ -50,5 +50,5 @@ const send = function(params) {
   })
 };
 
-module.exports send;
+module.exports = send;
 
