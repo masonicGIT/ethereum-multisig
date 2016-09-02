@@ -1,32 +1,43 @@
 'use strict'
 
-var sjcl = require('sjcl');
-var lightwallet = require('eth-lightwallet');
+const sjcl = require('sjcl');
+const lightwallet = require('eth-lightwallet');
+const Promise = require('bluebird');
+const entropy = Promise.promisifyAll(require('more-entropy'));
+const co = Promise.coroutine;
 
-var generatePrivKey = function() {
-  return new Buffer(sjcl.random.randomWords(32), 'hex');
-}
+const generatePrivateKey = co(function* () {
+  let generateEntropy = new entropy.Generator();
+  // Add entropy to SJCL then generate private key
+  return generateEntropy.generateAsync(100)
+  .catch(function(data) {
+    // The generateAsync call catches successful calls, we must catch them all
+    sjcl.random.addEntropy(data, 4096, 'more-entropy');
+    let privateKey = new Buffer(sjcl.random.randomWords(32), 'hex');
+    return privateKey;
+  });
+})
 
-var generatePubKeyFromPrivKey = function(privateKey) {
+const generatePublicKeyFromPrivateKey = function(privateKey) {
   return lightwallet.keystore._computePubkeyFromPrivKey(privateKey, 'curve25519');
 }
 
-var generateAddressFromPrivKey = function(privateKey) {
+const generateAddressFromPrivateKey = function(privateKey) {
   return '0x' + lightwallet.keystore._computeAddressFromPrivKey(privateKey);
 }
 
-var generateKeys = function(password) {  
-  let privateKey = generatePrivKey();
-  let publicKey = generatePubKeyFromPrivKey(privateKey);
-  let etherAddress = generateAddressFromPrivKey(privateKey);
-  let encryptedPrivateKey = sjcl.encrypt(password, privateKey.toString('hex'));
+const generateKeys = co(function* (password) {
+  let privateKeyBuffer = yield generatePrivateKey();
+  let privateKeyHex = privateKeyBuffer.toString('hex');
+  let etherAddress = generateAddressFromPrivateKey(privateKeyHex);
+  let encryptedPrivateKey = sjcl.encrypt(password, privateKeyBuffer.toString('hex'));
 
   return {
-    privateKey: privateKey,
+    privateKey: privateKeyHex,
     etherAddress: etherAddress,
     encryptedPrivateKey: encryptedPrivateKey
   }
-}
+})
 
 module.exports = generateKeys;
  
