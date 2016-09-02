@@ -1,5 +1,5 @@
 {
-  "name": "etherli-libs",
+  "name": "ethereum-multisig",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -10,10 +10,14 @@
   "license": "ISC",
   "dependencies": {
     "bluebird": "^3.3.5",
+    "co-prompt": "^1.0.0",
+    "commander": "^2.9.0",
     "eth-lightwallet": "^2.3.2",
     "ethereumjs-tx": "^1.1.1",
     "lodash": "^4.13.1",
+    "more-entropy": "0.0.7",
     "should": "^8.3.1",
+    "sjcl": "^1.0.3",
     "web3": "^0.17.0-alpha"
   },
   "devDependencies": {
