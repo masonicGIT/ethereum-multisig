@@ -20,7 +20,7 @@ if (process.argv.length < 4) {
 const m = parseInt(process.argv[2]);
 const n = parseInt(process.argv[3]);
 
-if (process.argv.length < (4 + n)) {
+if (process.argv.length < (3 + n)) {
   let passwordMessage = '';
   for (let i = 1; i < n; i++) {
     passwordMessage += ' < password for key-pair ' + i + '/' + n + ' >';
